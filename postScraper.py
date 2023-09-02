@@ -94,3 +94,4 @@ class PostScraper():
         except:
             pass
         self.write_to_file()
+        self.driver.quit()
