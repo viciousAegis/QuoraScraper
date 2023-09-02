@@ -1,6 +1,7 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from postScraper import PostScraper
 
-driver = webdriver.Chrome()
-
-driver.get('https://www.quora.com/')
+if __name__ == "__main__":
+    driver = webdriver.Chrome()
+    post_scraper = PostScraper(driver, "jeeadvanced", 2)
+    post_scraper.run()
