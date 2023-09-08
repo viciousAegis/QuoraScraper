@@ -2,14 +2,10 @@ import subprocess
 
 if __name__ == '__main__':
     search_queries = [
-        'Hyderabad',
-        'ChatGPT',
-        'COVID-19',
-        'MachineLearning',
-        'IndianElections',
+        'Cristiano Ronaldo',
     ]
 
-    posts_per_query = 100
+    posts_per_query = 50
 
     for search_query in search_queries:
-        subprocess.call(['python', 'scraper.py', search_query, str(posts_per_query)])
+        subprocess.call(['python3', 'scraper.py', search_query, str(posts_per_query)])

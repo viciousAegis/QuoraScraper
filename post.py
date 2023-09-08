@@ -15,6 +15,7 @@ class Post():
         self.author = None
         self.commenters = None
         self.upvoters = None
+        self.upvote_epoch_limit = 100
     
     def wait(self):
         time.sleep(random.randint(1,2))
@@ -87,12 +88,36 @@ class Post():
             # get the upvote popup
             upvote_popup = self.driver.find_element(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.eEjJKQ")
             
+            # scroll the modal to the bottom to load next batch of upvoters until the end
+            epoch = 0
+            last_count = 0
+            curr_count = 0
+            while epoch < self.upvote_epoch_limit:
+                try:
+                    self.driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight)", upvote_popup)
+                    time.sleep(4)
+                    
+                    if(epoch == 0):
+                        last_count = len(upvote_popup.find_elements(By.XPATH, ".//a[@href]"))
+                        curr_count = last_count
+                    
+                    # check if we got more upvoters, if not, break
+                    curr_count = len(upvote_popup.find_elements(By.XPATH, ".//a[@href]"))
+                    if(curr_count == last_count):
+                        break
+                    else:
+                        last_count = curr_count
+
+                    epoch += 1
+                except:
+                    break
+            
             # select all links in the popup
             upvoter_links = upvote_popup.find_elements(By.XPATH, ".//a[@href]")
             upvoter_links = [link.get_attribute("href") for link in upvoter_links if "profile" in link.get_attribute("href")]
             upvoter_links = list(set(upvoter_links))
             
-            time.sleep(2)
+            time.sleep(random.randint(5,10))
             
             # close the popup
             close_button = self.driver.find_element(By.CLASS_NAME, "q-click-wrapper")

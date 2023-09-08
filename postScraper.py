@@ -9,12 +9,15 @@ from selenium.webdriver.support.wait import WebDriverWait
 import os
 import csv
 
+def format_query(query):
+    return query.replace(" ", "%20")
+
 class PostScraper():
     def __init__(self, driver, search_query, total_post_count):
         self.driver = driver
         self.scraped_posts = []
         self.visible_posts = []
-        self.search_query = search_query
+        self.search_query = format_query(search_query)
         
         self.total_post_count = total_post_count
         self.scraped_post_count = 0
@@ -34,6 +37,18 @@ class PostScraper():
                 print("error opening search page")
                 self.wait()
     
+    def check_upvote_popup_error(self):
+        # get the upvote popup
+        upvote_popup = self.driver.find_elements(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.eEjJKQ")
+        if len(upvote_popup) > 0:
+            # close the popup
+            close_button = self.driver.find_element(By.CLASS_NAME, "q-click-wrapper")
+            close_button.click()
+            self.wait()
+            print("closed upvote popup")
+        else:
+            print("no upvote popup. some other error")
+    
     def scrape_single_post(self, post):
         # scroll the page till next post is visible and wait for 2 seconds
         try:
@@ -42,6 +57,7 @@ class PostScraper():
             self.scraped_posts.append(postElement.get_post_details())
         except:
             print("error scraping post")
+            self.check_upvote_popup_error()
             self.wait()
     
     def scrape_visible_posts(self):
@@ -70,10 +86,10 @@ class PostScraper():
     def write_to_file(self):
         # create a new folder with the name of the search query
         try:
-            os.mkdir("posts/"+self.search_query)
+            os.mkdir("posts/"+self.search_query.replace("%20", ""))
             
             # write the scraped posts to a csv file
-            with open("posts/"+self.search_query+"/"+self.search_query+".csv", "w", newline="", encoding="utf-8") as csvfile:
+            with open("posts/"+self.search_query.replace("%20", "")+"/"+self.search_query.replace("%20", "")+".csv", "w", newline="", encoding="utf-8") as csvfile:
                 fieldnames = ["text", "community_name", "author", "commenters", "upvoters"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
