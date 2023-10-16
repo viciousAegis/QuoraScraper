@@ -66,6 +66,7 @@ class PostScraper():
                 break
             self.scrape_single_post(post)
             self.scraped_post_count += 1
+            print("scraped post: ", self.scraped_post_count)
             self.remove_post(post)
     
     def remove_post(self, post):
@@ -80,13 +81,15 @@ class PostScraper():
         try:
             all_posts = self.driver.find_elements(By.CSS_SELECTOR, ".q-box.qu-borderBottom.qu-px--medium.qu-pt--medium")
             self.visible_posts = all_posts
+            print("got posts")
         except:
             self.wait()
 
     def write_to_file(self):
         # create a new folder with the name of the search query
         try:
-            os.mkdir("posts/"+self.search_query.replace("%20", ""))
+            if not os.path.exists("./posts/"+self.search_query.replace("%20", "")):
+                os.makedirs("./posts/"+self.search_query.replace("%20", ""))
             
             # write the scraped posts to a csv file
             with open("posts/"+self.search_query.replace("%20", "")+"/"+self.search_query.replace("%20", "")+".csv", "w", newline="", encoding="utf-8") as csvfile:
@@ -95,11 +98,13 @@ class PostScraper():
                 writer.writeheader()
                 for post in self.scraped_posts:
                     writer.writerow(post)
-        except:
+        except Exception as e:
+            print(e)
             pass
     
     def run(self):
         self.open_search_page()
+        print("Opened search page")
         try:
             while(self.scraped_post_count < self.total_post_count):
                 self.get_new_posts()
@@ -107,7 +112,8 @@ class PostScraper():
                 self.epoch += 1
                 self.wait()
                 print("scraped posts: ", self.scraped_post_count)
-        except:
+        except Exception as e:
+            print(e)
             pass
         self.write_to_file()
         self.driver.quit()

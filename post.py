@@ -86,12 +86,13 @@ class Post():
             time.sleep(2)
 
             # get the upvote popup
-            upvote_popup = self.driver.find_element(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.eEjJKQ")
+            upvote_popup = self.driver.find_element(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.fRHsQI")
             
             # scroll the modal to the bottom to load next batch of upvoters until the end
             epoch = 0
             last_count = 0
             curr_count = 0
+            error_count = 3
             while epoch < self.upvote_epoch_limit:
                 try:
                     self.driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight)", upvote_popup)
@@ -104,7 +105,9 @@ class Post():
                     # check if we got more upvoters, if not, break
                     curr_count = len(upvote_popup.find_elements(By.XPATH, ".//a[@href]"))
                     if(curr_count == last_count):
-                        break
+                        if error_count == 0:
+                            break
+                        error_count-=1
                     else:
                         last_count = curr_count
 

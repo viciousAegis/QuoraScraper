@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import igraph as ig
 import csv
+import os
 import matplotlib.pyplot as plt
 
 class GraphConverter:
@@ -18,6 +19,14 @@ class GraphConverter:
         self.upvote_edges = []
         self.weighted_edges = []
         self.clusters = None
+        self.centrality_measures = None
+    
+    def print_stats(self):
+        print(f"Users: {len(self.users)}")
+        print(f"Comment Edges: {len(self.comment_edges)}")
+        print(f"Upvote Edges: {len(self.upvote_edges)}")
+        print(f"Unique Edges: {len(self.weighted_edges)}")
+    
     
     def print_users(self):
         for user in self.users:
@@ -26,7 +35,6 @@ class GraphConverter:
     def print_comments(self):
         for comment in self.comments:
             print(comment)
-    
     def print_upvotes(self):
         for upvote in self.upvotes:
             print(upvote)
@@ -145,23 +153,62 @@ class GraphConverter:
         )
         plt.show()
     
+    def calc_centrality_measures(self):
+        degree = self.graph.degree()
+        closeness = self.graph.closeness()
+        betweenness = self.graph.betweenness()
+        eigenvector = self.graph.eigenvector_centrality()
+        pagerank = self.graph.pagerank()
+        self.centrality_measures = {
+            'degree': degree,
+            'closeness': closeness,
+            'betweenness': betweenness,
+            'eigenvector': eigenvector,
+            'pagerank': pagerank,
+        }
+    
+    def plot_centrality(self, measure):
+        # plot each cluster separately on the same plot
+        fig, ax = plt.subplots()
+        for cluster in self.clusters:
+            cluster_measure = [self.centrality_measures[measure][i] for i in cluster]
+            subgraph = self.graph.subgraph(cluster)
+            # plot only the nodes with top 10% centrality
+            # subgraph = subgraph.induced_subgraph(np.argsort(cluster_measure)[-int(len(cluster_measure) * 0.1):])
+            ig.plot(
+                subgraph,
+                target=ax,
+                palette=ig.GradientPalette("red", "green", n=20),
+                vertex_size=0.2,
+                edge_width=0.4,
+                layout="kk",
+                vertex_color=list(map(int, ig.rescale(cluster_measure, (0, 19), clamp=True))),
+            )
+        plt.show()
+    
     def print_modularity(self):
         print(self.clusters.modularity)
 
 if __name__ == "__main__":
-    input_paths = [
-        "posts/LionelMessi/LionelMessi.csv",
-        "posts/CristianoRonaldo/CristianoRonaldo.csv",
-        "posts/ViratKohli/ViratKohli.csv",
-        "posts/MSDhoni/MSDhoni.csv",
-        ]
+    
+    input_paths = []
+    # get all csv files in the posts directory
+    for root, dirs, files in os.walk("posts"):
+        for file in files:
+            if file.endswith(".csv"):
+                input_paths.append(os.path.join(root, file))
+    
     converter = GraphConverter(input_paths)
     converter.read_csv()
     converter.set_comment_edges()
     converter.set_upvote_edges()
     converter.set_weighted_edges()
+    converter.print_stats()
     converter.create_dataframes()
     converter.create_graph()
-    converter.leiden(resolution=0.001, n_iterations=100)
-    converter.print_modularity()
+    converter.leiden(resolution=0.01, n_iterations=100)
     converter.plot_leiden()
+    # converter.print_modularity()
+    # converter.calc_centrality_measures()
+    # converter.plot_centrality('degree')
+    # converter.plot_graph()
