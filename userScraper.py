@@ -4,15 +4,23 @@ from selenium.webdriver.common.by import By
 import csv
 
 class UserScraper():
-    def __init__(self, driver, profile_link):
+    def __init__(self, driver, search_term):
         self.driver = driver
-        self.profile_link = profile_link
+        self.search_term = search_term
+        self.profile_links = None
         self.followers = []
         self.following = []
         self.creds = []
         self.epochs = 100
         self.error_margin = 3
-        self.driver.get(self.profile_link)
+    
+    def set_user_urls(self):
+        with open("users/user_urls/"+self.search_term.replace(" ", "")+"/"+self.search_term.replace(" ", "")+".csv", "r") as f:
+            reader = csv.reader(f)
+            self.profile_links = [row[0] for row in reader]
+    
+    def get_page(self, url):
+        self.driver.get(url)
     
     def wait(self):
         time.sleep(random.randint(1,2))
@@ -35,7 +43,7 @@ class UserScraper():
             while epoch < self.epochs:
                 try:
                     self.driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight)", user_popup)
-                    time.sleep(4)
+                    time.sleep(3)
                     
                     if(epoch == 0):
                         last_count = len(user_popup.find_elements(By.XPATH, ".//a[@href]"))
@@ -91,8 +99,13 @@ class UserScraper():
             writer.writerow([self.profile_link, self.followers, self.following, self.creds])
     
     def run(self):
-        self.scrape_linked_users(0)
-        self.scrape_linked_users(1)
-        self.scrape_credentials()
-        self.save_to_csv()
+        self.set_user_urls()
+        for profile_link in self.profile_links:
+            self.profile_link = profile_link
+            self.get_page(self.profile_link)
+            self.wait()
+            self.scrape_linked_users(0)
+            self.scrape_linked_users(1)
+            self.scrape_credentials()
+            self.save_to_csv()
         self.driver.quit()

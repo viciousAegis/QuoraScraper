@@ -24,7 +24,7 @@ if __name__ == "__main__":
     driver = webdriver.Chrome(options=options)
     
     if(args.type == "user"):
-        user_scraper = UserScraper(driver, args.user_url)
+        user_scraper = UserScraper(driver, args.search_term)
         user_scraper.run()
         sys.exit()
 

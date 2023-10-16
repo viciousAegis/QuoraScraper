@@ -5,6 +5,7 @@ env/
 
 # data
 posts/
+users/
 
 # cache
 __pycache__/
