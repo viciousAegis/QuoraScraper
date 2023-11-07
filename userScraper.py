@@ -94,7 +94,7 @@ class UserScraper():
             self.creds.append(div.text)
     
     def save_to_csv(self):
-        with open("users/users.csv", "a+") as f:
+        with open(f"users/{self.search_term.replace(' ', '')}.csv", "w") as f:
             writer = csv.writer(f)
             writer.writerow([self.profile_link, self.followers, self.following, self.creds])
     
