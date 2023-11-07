@@ -26,7 +26,10 @@ class UserScraper():
         time.sleep(random.randint(1,2))
         
     def scrape_linked_users(self, type):
-        print("scraping linked users: ", type)
+        if type == 0:
+            print("scraping followers")
+        if type == 1:
+            print("scraping following")
         try:
             user_text = self.driver.find_elements(By.CSS_SELECTOR, ".q-text.qu-dynamicFontSize--small.qu-color--gray")[type]
             
@@ -99,6 +102,7 @@ class UserScraper():
             writer.writerow([self.profile_link, self.followers, self.following, self.creds])
     
     def run(self):
+        print(f"searching for {self.search_term}")
         self.set_user_urls()
         for profile_link in self.profile_links:
             self.profile_link = profile_link
