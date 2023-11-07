@@ -56,5 +56,5 @@ if __name__ == '__main__':
 
     for search_query in search_queries:
         subprocess.call(['python3', 'scraper.py', '-t', 'post', '-q', search_query, '-c', args.total_post_count])
-        get_users(search_query)
-        subprocess.call(['python3', 'scraper.py', '-t', 'user', '-q', search_query])
+        # get_users(search_query)
+        # subprocess.call(['python3', 'scraper.py', '-t', 'user', '-q', search_query])

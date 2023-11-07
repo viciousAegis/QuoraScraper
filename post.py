@@ -79,15 +79,30 @@ class Post():
     def scrape_upvotes(self):
         # find upvote text and click on it
         try:
-            upvote_text = self.post_element.find_element(By.XPATH, "//*[text()='View upvotes']")
-            upvote_text.click()
+            error_count = 3
+            upvote_popup = None
+            print(error_count, upvote_popup)
+            while error_count > 0 and upvote_popup is None:
+                print("Clicking on upvote text")
+                upvote_text = self.post_element.find_element(By.XPATH, "//*[text()='View upvotes']")
+               
+                print(upvote_text)
+                if upvote_text is None:
+                    print("No upvote text")
+                else:
+                    print("Upvote text found")
 
-            # wait for the upvote popup to load 
-            time.sleep(2)
+                upvote_text.click()
 
-            # get the upvote popup
-            upvote_popup = self.driver.find_element(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.fRHsQI")
-            
+
+                # wait for the upvote popup to load 
+                time.sleep(2)
+
+                # get the upvote popup
+                upvote_popup = self.driver.find_element(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.fRHsQI")
+
+                error_count-=1
+
             # scroll the modal to the bottom to load next batch of upvoters until the end
             epoch = 0
             last_count = 0
@@ -95,6 +110,7 @@ class Post():
             error_count = 3
             while epoch < self.upvote_epoch_limit:
                 try:
+                    print("Scrolling")
                     self.driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight)", upvote_popup)
                     time.sleep(4)
                     
