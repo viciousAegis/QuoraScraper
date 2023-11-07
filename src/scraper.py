@@ -33,6 +33,6 @@ if __name__ == "__main__":
         for search_term in search_queries:
             user_scraper = UserScraper(driver, search_term)
             user_scraper.run()
-
-    post_scraper = PostScraper(driver, args.search_term, int(args.total_post_count))
-    post_scraper.run()
+    else:
+        post_scraper = PostScraper(driver, args.search_term, int(args.total_post_count))
+        post_scraper.run()

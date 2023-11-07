@@ -8,17 +8,22 @@ It is recommended to use a virtual environment. Use the following command to ins
 pip install -r requirements.txt
 ```
 
-2. Configure the settings
-The only script you need to run is `run.py`. You can configure the settings in the same file. The settings are as follows:
+2. Configure the search terms
+Please list the search terms in `serach.terms` with one term per line. For example:
 ```
-# The search queries to search for
-queries = ["What is the best way to learn programming?", "What is the best way to learn Python?"]
-# The number of posts to scrape for each query
-num_posts = 10
+python
+java
+c++
 ```
 
 3. Run the script
-Run the script using the following command:
+Running with the `-u` flag will scrape user profiles. Otherwise, it will scrape posts.
 ```
-python run.py
+usage: run.py [-h] [-c TOTAL_POST_COUNT] [-u]
+
+options:
+  -h, --help            show this help message and exit
+  -c TOTAL_POST_COUNT, --count TOTAL_POST_COUNT
+                        number of posts to scrape
+  -u, --user            scrape user profiles
 ```
