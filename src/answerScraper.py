@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
 import random
-from post import Post
+from answer_post import AnswerPost
 from bs4 import BeautifulSoup
 from selenium.webdriver.support.wait import WebDriverWait
 import os
@@ -12,7 +12,7 @@ import csv
 def format_query(query):
     return query.replace(" ", "%20")
 
-class PostScraper:
+class AnswerScraper:
     def __init__(self, driver, search_query, total_post_count):
         self.driver = driver
         self.scraped_posts = []
@@ -29,35 +29,22 @@ class PostScraper:
     def open_search_page(self):
         while(len(self.visible_posts) == 0):
             try:
-                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=post"
+                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=answer"
                 self.driver.get(search_url)
                 self.wait()
                 self.get_new_posts()
             except:
                 print("error opening search page")
                 self.wait()
-    
-    def check_upvote_popup_error(self):
-        # get the upvote popup
-        upvote_popup = self.driver.find_elements(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.eEjJKQ")
-        if len(upvote_popup) > 0:
-            # close the popup
-            close_button = self.driver.find_element(By.CLASS_NAME, "q-click-wrapper")
-            close_button.click()
-            self.wait()
-            print("closed upvote popup")
-        else:
-            print("no upvote popup. some other error")
-    
+
     def scrape_single_post(self, post):
         # scroll the page till next post is visible and wait for 2 seconds
         try:
-            postElement = Post(post, self.driver)
+            postElement = AnswerPost(post, self.driver)
             postElement.master_scrape()
             self.scraped_posts.append(postElement.get_post_details())
         except:
             print("error scraping post")
-            self.check_upvote_popup_error()
             self.wait()
     
     def scrape_visible_posts(self):
@@ -79,7 +66,7 @@ class PostScraper:
     def get_new_posts(self):
         # get all the posts on the page
         try:
-            all_posts = self.driver.find_elements(By.CSS_SELECTOR, ".q-box.qu-borderBottom.qu-px--medium.qu-pt--medium")
+            all_posts = self.driver.find_elements(By.CSS_SELECTOR, ".q-box.qu-borderBottom.qu-p--medium.qu-pb--tiny")
             self.visible_posts = all_posts
             print("got posts")
         except:
@@ -88,12 +75,12 @@ class PostScraper:
     def write_to_file(self):
         # create a new folder with the name of the search query
         try:
-            if not os.path.exists("./posts/"+self.search_query.replace("%20", "")):
-                os.makedirs("./posts/"+self.search_query.replace("%20", ""))
+            if not os.path.exists("./answers/"+self.search_query.replace("%20", "")):
+                os.makedirs("./answers/"+self.search_query.replace("%20", ""))
             
             # write the scraped posts to a csv file
-            with open("posts/"+self.search_query.replace("%20", "")+"/"+self.search_query.replace("%20", "")+".csv", "w", newline="", encoding="utf-8") as csvfile:
-                fieldnames = ["text", "community_name", "author", "commenters", "upvoters"]
+            with open("./answers/"+self.search_query.replace("%20", "")+"/"+self.search_query.replace("%20", "")+".csv", "w", newline="", encoding="utf-8") as csvfile:
+                fieldnames = ["text", "image_urls"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 for post in self.scraped_posts:

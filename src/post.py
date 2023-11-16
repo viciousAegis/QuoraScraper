@@ -6,7 +6,7 @@ import time
 import random
 from bs4 import BeautifulSoup
 
-class Post():
+class Post:
     def __init__(self, post_element, driver):
         self.post_element = post_element
         self.driver = driver

@@ -3,7 +3,7 @@ import random
 from selenium.webdriver.common.by import By
 import csv
 
-class UserScraper():
+class UserScraper:
     def __init__(self, driver, search_term):
         self.driver = driver
         self.search_term = search_term
@@ -112,4 +112,3 @@ class UserScraper():
             self.scrape_linked_users(1)
             self.scrape_credentials()
             self.save_to_csv()
-        self.driver.quit()
