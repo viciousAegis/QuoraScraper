@@ -6,6 +6,7 @@ env/
 # data
 posts/
 users/
+answers/*
 
 # cache
 __pycache__/

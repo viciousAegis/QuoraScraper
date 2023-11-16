@@ -10,7 +10,7 @@ class AnswerPost:
     def __init__(self, post_element, driver):
         self.post_element = post_element
         self.driver = driver
-        self.text = None
+        self.text = []
         self.image_urls = []
         self.video_urls = []
         self.upvote_epoch_limit = 100
@@ -58,7 +58,9 @@ class AnswerPost:
         WebDriverWait(self.driver, timeout=10).until(lambda d: d.find_element(By.CSS_SELECTOR,".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")) # this is the p tag containing the text
         
         # get the text from the p tag
-        self.text = self.driver.find_element(By.CSS_SELECTOR, ".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start").text
+        texts = self.driver.find_elements(By.CSS_SELECTOR, ".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")
+        for txt in texts:
+            self.text.append(txt.text)
         self.wait()
     
     def master_scrape(self):

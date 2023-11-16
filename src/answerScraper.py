@@ -22,6 +22,7 @@ class AnswerScraper:
         self.total_post_count = total_post_count
         self.scraped_post_count = 0
         self.epoch = 0
+        self.last_count = 0
     
     def wait(self):
         time.sleep(random.randint(1, 2))
@@ -99,6 +100,9 @@ class AnswerScraper:
                 self.epoch += 1
                 self.wait()
                 print("scraped posts: ", self.scraped_post_count)
+                # check if we got more posts, if not, break
+                if(len(self.visible_posts) == 0):
+                    break
         except Exception as e:
             print(e)
             pass
