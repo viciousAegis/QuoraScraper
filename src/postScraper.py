@@ -37,6 +37,16 @@ class PostScraper:
                 print("error opening search page")
                 self.wait()
     
+    def check_paid_post_error(self):
+        paid_post_popup = self.driver.find_elements(By.CSS_SELECTOR, "div.q-flex.ModalContainerInternal___StyledFlex-s8es4q-2.gXhqYs.modal_content_inner.qu-flexDirection--column.qu-bg--white.qu-overflowY--auto.qu-borderAll.qu-alignSelf--center")
+        print('paid post')
+        if len(paid_post_popup) > 0:
+            # close the popup
+            close_button = self.driver.find_element(By.CLASS_NAME, "q-click-wrapper")
+            close_button.click()
+            self.wait()
+            print("closed paid post popup")
+
     def check_upvote_popup_error(self):
         # get the upvote popup
         upvote_popup = self.driver.find_elements(By.CSS_SELECTOR, "div.q-box.qu-overflowY--auto.qu-display--flex.qu-flexDirection--column.ScrollBox___StyledBox-sc-1t8bc7j-0.eEjJKQ")
@@ -58,6 +68,7 @@ class PostScraper:
         except:
             print("error scraping post")
             self.check_upvote_popup_error()
+            self.check_paid_post_error()
             self.wait()
     
     def scrape_visible_posts(self):
@@ -93,7 +104,7 @@ class PostScraper:
             
             # write the scraped posts to a csv file
             with open("posts/"+self.search_query.replace("%20", "")+"/"+self.search_query.replace("%20", "")+".csv", "w", newline="", encoding="utf-8") as csvfile:
-                fieldnames = ["text", "community_name", "author", "commenters", "upvoters"]
+                fieldnames = ["text", "community_name", "author", "commenters", "upvoters", "comments"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 for post in self.scraped_posts:

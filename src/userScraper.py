@@ -23,7 +23,7 @@ class UserScraper:
         self.driver.get(url)
     
     def wait(self):
-        time.sleep(random.randint(1,2))
+        time.sleep(random.randint(3,5))
         
     def scrape_linked_users(self, type):
         if type == 0:
@@ -108,7 +108,8 @@ class UserScraper:
             self.profile_link = profile_link
             self.get_page(self.profile_link)
             self.wait()
-            self.scrape_linked_users(0)
-            self.scrape_linked_users(1)
+            # self.scrape_linked_users(0)
+            # self.scrape_linked_users(1)
             self.scrape_credentials()
             self.save_to_csv()
+            self.wait()

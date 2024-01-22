@@ -30,7 +30,7 @@ class AnswerScraper:
     def open_search_page(self):
         while(len(self.visible_posts) == 0):
             try:
-                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=answer"
+                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=question"
                 self.driver.get(search_url)
                 self.wait()
                 self.get_new_posts()

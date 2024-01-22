@@ -29,4 +29,4 @@ if __name__ == '__main__':
 
     subprocess.call(['python3', './src/scraper.py', '-t', 'post', '-c', str(args.total_post_count)])
     
-    subprocess.call(['python3', 'userUtils.py'])
+    subprocess.call(['python3', './src/userUtils.py'])

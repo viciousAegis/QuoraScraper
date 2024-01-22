@@ -33,6 +33,30 @@ def get_users(search_query):
             for user in users:
                 writer.writerow([user])
 
+def get_authors(search_query):
+     with open("posts/"+search_query.replace(" ", "")+"/"+search_query.replace(" ", "")+".csv", "r", newline="", encoding="utf-8") as csvfile:
+        # get all unique users
+        reader = csv.DictReader(csvfile)
+        
+        users = []
+        
+        for row in reader:
+            users.append(row['author'])
+        
+        users = list(set(users))
+        
+        # remove empty strings
+        users = [x for x in users if x]
+        
+        if not os.path.exists("users/user_urls/"+search_query.replace(" ", "")):
+            os.makedirs("users/user_urls/"+search_query.replace(" ", ""))
+        
+        with open("users/user_urls/"+search_query.replace(" ", "")+"/"+search_query.replace(" ", "")+".csv", "w") as f:
+            writer = csv.writer(f)
+            for user in users:
+                writer.writerow([user])
+
+
 if __name__ == "__main__":
     search_queries = []
 
