@@ -10,7 +10,8 @@ class AnswerPost:
     def __init__(self, post_element, driver):
         self.post_element = post_element
         self.driver = driver
-        self.text = []
+        self.question = None
+        self.answer = []
         self.image_urls = []
         self.video_urls = []
         self.upvote_epoch_limit = 100
@@ -53,14 +54,22 @@ class AnswerPost:
         actions.click()
         actions.perform()
         self.wait()
+
+    def scrape_question(self):
+        question_div = self.post_element.find_element(By.CSS_SELECTOR, "div.q-flex.qu-flexDirection--row")
+        # get all inner texts in the div
+        question_text = question_div.text
+        self.question = question_text
+        self.wait()
+
     
     def scrape_text(self):
         WebDriverWait(self.driver, timeout=10).until(lambda d: d.find_element(By.CSS_SELECTOR,".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")) # this is the p tag containing the text
         
         # get the text from the p tag
-        texts = self.driver.find_elements(By.CSS_SELECTOR, ".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")
-        for txt in texts:
-            self.text.append(txt.text)
+        text_boxes = self.post_element.find_elements(By.CSS_SELECTOR, ".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")
+        self.answer = [text_box.text for text_box in text_boxes]
+        self.answer = ' '.join(self.answer)
         self.wait()
     
     def master_scrape(self):
@@ -68,10 +77,12 @@ class AnswerPost:
         self.remove_videos()
         self.click()
         self.remove_images()
+        self.scrape_question()
         self.scrape_text()        
 
     def get_post_details(self):
         return {
-            "text": self.text,
+            "question": self.question,
+            "answer": self.answer,
             "image_urls": self.image_urls,
         }

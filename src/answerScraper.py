@@ -30,7 +30,7 @@ class AnswerScraper:
     def open_search_page(self):
         while(len(self.visible_posts) == 0):
             try:
-                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=question"
+                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=answer"
                 self.driver.get(search_url)
                 self.wait()
                 self.get_new_posts()
@@ -81,7 +81,7 @@ class AnswerScraper:
             
             # write the scraped posts to a csv file
             with open("./answers/"+self.search_query.replace("%20", "")+"/"+self.search_query.replace("%20", "")+".csv", "w", newline="", encoding="utf-8") as csvfile:
-                fieldnames = ["text", "image_urls"]
+                fieldnames = ["question","answer", "image_urls"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 for post in self.scraped_posts:
