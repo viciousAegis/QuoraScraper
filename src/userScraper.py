@@ -10,7 +10,7 @@ class UserScraper:
         self.profile_links = None
         self.followers = []
         self.following = []
-        self.creds = []
+        self.creds = ''
         self.epochs = 100
         self.error_margin = 3
     
@@ -92,9 +92,10 @@ class UserScraper:
         print("set linked users: ", type)
     
     def scrape_credentials(self):
-        main_div = self.driver.find_elements(By.CSS_SELECTOR, ".q-text.qu-dynamicFontSize--small.qu-mt--small")
-        for div in main_div:
-            self.creds.append(div.text)
+        main_div = self.driver.find_element(By.CSS_SELECTOR, ".q-box.qu-mb--medium")
+        text_divs = main_div.find_elements(By.CSS_SELECTOR, ".q-text.qu-wordBreak--break-word")
+        for text_div in text_divs:
+            self.creds += text_div.text + " "
     
     def save_to_csv(self):
         with open(f"users/{self.search_term.replace(' ', '')}.csv", "w") as f:
