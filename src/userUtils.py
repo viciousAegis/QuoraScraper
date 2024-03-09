@@ -34,7 +34,7 @@ def get_users(search_query):
                 writer.writerow([user])
 
 def get_authors(search_query):
-     with open("posts/"+search_query.replace(" ", "")+"/"+search_query.replace(" ", "")+".csv", "r", newline="", encoding="utf-8") as csvfile:
+    with open("posts/"+search_query.replace(" ", "")+"/"+search_query.replace(" ", "")+".csv", "r", newline="", encoding="utf-8") as csvfile:
         # get all unique users
         reader = csv.DictReader(csvfile)
         
