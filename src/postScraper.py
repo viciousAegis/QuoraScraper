@@ -13,7 +13,7 @@ def format_query(query):
     return query.replace(" ", "%20")
 
 class PostScraper:
-    def __init__(self, driver, search_query, total_post_count):
+    def __init__(self, driver, search_query, total_post_count, timeline):
         self.driver = driver
         self.scraped_posts = []
         self.visible_posts = []
@@ -22,17 +22,45 @@ class PostScraper:
         self.total_post_count = total_post_count
         self.scraped_post_count = 0
         self.epoch = 0
+        self.consecutive_error_count = 0
+
+        self.timeline = timeline
+        if timeline == "all":
+            self.timeline = ""
     
     def wait(self):
         time.sleep(random.randint(1, 2))
     
+    def login(self):
+        # get email input
+        email_input = self.driver.find_element(By.NAME, "email")
+        email_input.send_keys("akshitsinha2801@gmail.com")
+        self.wait()
+        # get password input
+        password_input = self.driver.find_element(By.NAME, "password")
+        password_input.send_keys("Akshit@2003")
+        self.wait()
+        # click enter
+        password_input.send_keys(Keys.RETURN)
+    
     def open_search_page(self):
         while(len(self.visible_posts) == 0):
             try:
-                search_url = "https://www.quora.com/search?q="+self.search_query+"&type=post"
+                search_url = f"https://www.quora.com/search?q={self.search_query}&type=post&time={self.timeline}"
                 self.driver.get(search_url)
                 self.wait()
-                self.get_new_posts()
+                # check if url is actually the search url
+                if self.driver.current_url != search_url:
+                    print("not a search url")
+                    if self.driver.current_url == "https://www.quora.com/":
+                        # login page
+                        self.login()
+                        time.sleep(5)
+                        self.driver.get(search_url)
+                        self.wait()
+                        self.get_new_posts()
+                else:
+                    self.get_new_posts()
             except:
                 print("error opening search page")
                 self.wait()
@@ -65,11 +93,14 @@ class PostScraper:
             postElement = Post(post, self.driver)
             postElement.master_scrape()
             self.scraped_posts.append(postElement.get_post_details())
+            if self.consecutive_error_count > 0:
+                self.consecutive_error_count = 0
         except:
             print("error scraping post")
             self.check_upvote_popup_error()
             self.check_paid_post_error()
             self.wait()
+            self.consecutive_error_count += 1
     
     def scrape_visible_posts(self):
         for post in self.visible_posts:
@@ -79,6 +110,11 @@ class PostScraper:
             self.scraped_post_count += 1
             print("scraped post: ", self.scraped_post_count)
             self.remove_post(post)
+            # check consecutive errors
+            if self.consecutive_error_count > 5:
+                print("too many consecutive errors")
+                return -1
+        return 0
     
     def remove_post(self, post):
         self.driver.execute_script("""
@@ -119,7 +155,9 @@ class PostScraper:
         try:
             while(self.scraped_post_count < self.total_post_count):
                 self.get_new_posts()
-                self.scrape_visible_posts()
+                flag = self.scrape_visible_posts()
+                if flag == -1:
+                    break
                 self.epoch += 1
                 self.wait()
                 print("scraped posts: ", self.scraped_post_count)

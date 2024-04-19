@@ -23,6 +23,8 @@ if __name__ == "__main__":
     # if post scrape
     parser.add_argument("-c", "--count", dest="total_post_count", help="number of posts or users to scrape", default=50)
     
+    parser.add_argument('--timeline', type=str, help='timeline to scrape', default='week', choices=['all', 'year', 'month', 'week', 'day', 'hour'])
+
     args = parser.parse_args()
         
     options = ChromeOptions()
@@ -40,6 +42,6 @@ if __name__ == "__main__":
             answer_scraper.run()
     else:
         for search_term in search_queries:
-            post_scraper = PostScraper(driver, search_term, int(args.total_post_count))
+            post_scraper = PostScraper(driver, search_term, int(args.total_post_count), args.timeline)
             post_scraper.run()
     driver.quit()

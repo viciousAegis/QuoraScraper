@@ -2,6 +2,7 @@ import time
 import random
 from selenium.webdriver.common.by import By
 import csv
+from tqdm import tqdm
 
 class UserScraper:
     def __init__(self, driver, search_term):
@@ -92,25 +93,36 @@ class UserScraper:
         print("set linked users: ", type)
     
     def scrape_credentials(self):
-        main_div = self.driver.find_element(By.CSS_SELECTOR, ".q-box.qu-mb--medium")
-        text_divs = main_div.find_elements(By.CSS_SELECTOR, ".q-text.qu-wordBreak--break-word")
-        for text_div in text_divs:
-            self.creds += text_div.text + " "
+        self.creds = ''
+        main_box = self.driver.find_element(By.CSS_SELECTOR, "div.q-text.qu-dynamicFontSize--small.qu-mt--small")
+        cred_divs = main_box.find_elements(By.CSS_SELECTOR, "div.q-text.qu-truncateLines--2")
+        for cred_text in cred_divs:
+            self.creds += cred_text.text + "|"
     
+    def init_csv(self):
+        with open(f"users/{self.search_term.replace(' ', '')}.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["profile_link", "followers", "following", "creds"])
+
     def save_to_csv(self):
-        with open(f"users/{self.search_term.replace(' ', '')}.csv", "w") as f:
+        with open(f"users/{self.search_term.replace(' ', '')}.csv", "a") as f:
             writer = csv.writer(f)
             writer.writerow([self.profile_link, self.followers, self.following, self.creds])
     
     def run(self):
         print(f"searching for {self.search_term}")
         self.set_user_urls()
+        self.init_csv()
         for profile_link in self.profile_links:
-            self.profile_link = profile_link
-            self.get_page(self.profile_link)
-            self.wait()
-            # self.scrape_linked_users(0)
-            # self.scrape_linked_users(1)
-            self.scrape_credentials()
-            self.save_to_csv()
-            self.wait()
+            try:
+                self.profile_link = profile_link
+                self.get_page(self.profile_link)
+                self.wait()
+                # self.scrape_linked_users(0)
+                # self.scrape_linked_users(1)
+                self.scrape_credentials()
+                self.save_to_csv()
+                self.wait()
+            except:
+                print("error scraping user")
+                continue

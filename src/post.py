@@ -16,7 +16,7 @@ class Post:
         self.author = None
         self.commenters = None
         self.upvoters = None
-        self.upvote_epoch_limit = 100
+        self.upvote_epoch_limit = 20
     
     def wait(self):
         time.sleep(random.randint(1,2))
@@ -47,7 +47,7 @@ class Post:
         # click on the post to get expanded view
         actions = webdriver.ActionChains(self.driver)
         # click on top
-        actions.move_to_element_with_offset(self.post_element, 0, self.post_element.size["height"]/2-10)
+        actions.move_to_element_with_offset(self.post_element, 0, 0)
         actions.click()
         actions.perform()
         self.wait()
@@ -59,6 +59,13 @@ class Post:
         text_boxes = self.post_element.find_elements(By.CSS_SELECTOR, ".q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")
         self.text = [text_box.text for text_box in text_boxes]
         self.text = ' '.join(self.text)
+        self.wait()
+        # remove all text boxes from post element
+        for text_box in text_boxes:
+            self.driver.execute_script("""
+            var element = arguments[0];
+            element.parentNode.removeChild(element);
+            """, text_box)
         self.wait()
     
     def scrape_community_name(self):
@@ -87,7 +94,7 @@ class Post:
             print(error_count, upvote_popup)
             while error_count > 0 and upvote_popup is None:
                 print("Clicking on upvote text")
-                upvote_text = self.post_element.find_element(By.XPATH, "//*[text()='View upvotes']")
+                upvote_text = self.post_element.find_element(By.CSS_SELECTOR, "div.q-click-wrapper.qu-display--inline-block.qu-tapHighlight--white.qu-cursor--pointer.qu-hover--textDecoration--underline.ClickWrapper___StyledClickWrapperBox-zoqi4f-0.iyYUZT")
                
                 print(upvote_text)
                 if upvote_text is None:
@@ -146,43 +153,49 @@ class Post:
             close_button.click()
 
             self.wait()
-        except:
+        except Exception as e:
+            print("Error scraping upvotes", e)
             upvoter_links = []
         self.upvoters = upvoter_links
 
     def scrape_comments(self):
-        comments_container = self.post_element.find_element(By.CLASS_NAME, "comment_and_ad_container")
-        comments_container.click()
-        
-        # now, comments container is expanded. Click on view more comments
-        self.wait()
-        
-        view_more_comments = comments_container.find_element(By.XPATH, "//*[text()='View more comments']")
         try:
-            while view_more_comments.is_displayed():
-                    self.wait()
-                    view_more_comments.click()
-                    self.wait()
-                    view_more_comments = comments_container.find_element(By.XPATH, "//*[text()='View more comments']")
-        except: 
-            pass
-        
-        # now get the profile links of all the commenters        
-        comment_links = comments_container.find_elements(By.XPATH, ".//a[@href]")
-        comment_links = [link.get_attribute("href") for link in comment_links if "profile" in link.get_attribute("href")]
-        comment_links = list(set(comment_links))
+            comments_container = self.post_element.find_element(By.CLASS_NAME, "comment_and_ad_container")
+            comments_container.click()
+            
+            # now, comments container is expanded. Click on view more comments
+            self.wait()
+            
+            view_more_comments = comments_container.find_element(By.XPATH, "//*[text()='View more comments']")
+            try:
+                while view_more_comments.is_displayed():
+                        self.wait()
+                        view_more_comments.click()
+                        self.wait()
+                        view_more_comments = comments_container.find_element(By.XPATH, "//*[text()='View more comments']")
+            except: 
+                pass
+            
+            # now get the profile links of all the commenters        
+            comment_links = comments_container.find_elements(By.XPATH, ".//a[@href]")
+            comment_links = [link.get_attribute("href") for link in comment_links if "profile" in link.get_attribute("href")]
+            comment_links = list(set(comment_links))
 
-        # get comment content
-        comment_paras = comments_container.find_elements(By.CSS_SELECTOR, "p.q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")
-        # text is insid span inside p
-        comment_texts = [para.find_element(By.TAG_NAME, "span").text for para in comment_paras]
+            # get comment content
+            comment_paras = comments_container.find_elements(By.CSS_SELECTOR, "p.q-text.qu-display--block.qu-wordBreak--break-word.qu-textAlign--start")
+            # text is insid span inside p
+            comment_texts = [para.find_element(By.TAG_NAME, "span").text for para in comment_paras]
 
-        self.comments.extend(comment_texts)
+            self.comments.extend(comment_texts)
 
-        # remove the profile link of the post author
-        self.commenters = [link for link in comment_links if link != self.author]
-        
-        self.wait()
+            # remove the profile link of the post author
+            self.commenters = [link for link in comment_links if link != self.author]
+            
+            self.wait()
+        except Exception as e:
+            print("Error scraping comments")
+            self.commenters = []
+            self.comments = []
     
     def master_scrape(self):
         self.move_into_view()
