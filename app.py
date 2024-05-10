@@ -3,6 +3,7 @@ from flask_cors import CORS, cross_origin
 import subprocess
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def hello_world():
@@ -32,3 +33,6 @@ def scrape_data():
     run_scraper(post_count)
     
     return 'running scraper.py'
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001)
