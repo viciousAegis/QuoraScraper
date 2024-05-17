@@ -4,3 +4,7 @@ igraph==0.10.6
 pandas==2.1.0
 matplotlib==3.7.2
 numpy==1.25.2
+flask_cors
+tqdm
+chromedriver-autoinstaller
+webdriver-manager

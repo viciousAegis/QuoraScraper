@@ -32,7 +32,7 @@ def scrape_data():
     # run scraper.py
     run_scraper(post_count)
     
-    return 'running scraper.py'
+    return f'running scraper.py {post_count} {search_terms}'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
