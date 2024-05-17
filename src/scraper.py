@@ -5,6 +5,7 @@ from userScraper import UserScraper
 from answerScraper import AnswerScraper
 import sys
 import argparse
+import chromedriver_autoinstaller
 
 if __name__ == "__main__":
     search_queries = []
@@ -26,11 +27,23 @@ if __name__ == "__main__":
     parser.add_argument('--timeline', type=str, help='timeline to scrape', default='week', choices=['all', 'year', 'month', 'week', 'day', 'hour'])
 
     args = parser.parse_args()
+
+    chromedriver_autoinstaller.install()
         
-    options = ChromeOptions()
-    options.add_argument("start-maximized");
-    options.add_argument('--disable-popup-blocking')
-    driver = webdriver.Chrome(options=options)
+
+    
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("start-maximized")
+    chrome_options.add_argument('--disable-popup-blocking')
+    # Overcomes limited resource problems
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")  # Applicable to windows os only
+    chrome_options.add_argument(
+        "--remote-debugging-port=9222")  # This is important
+    # Disable sandboxing that Chrome runs in.
+    chrome_options.add_argument("--no-sandbox")
+
+    driver = webdriver.Chrome(options=chrome_options)
     
     if(args.type == "user"):
         for search_term in search_queries:
