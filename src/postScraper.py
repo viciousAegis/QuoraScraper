@@ -34,11 +34,11 @@ class PostScraper:
     def login(self):
         # get email input
         email_input = self.driver.find_element(By.NAME, "email")
-        email_input.send_keys("akshitsinha2801@gmail.com")
+        email_input.send_keys("email")
         self.wait()
         # get password input
         password_input = self.driver.find_element(By.NAME, "password")
-        password_input.send_keys("Akshit@2003")
+        password_input.send_keys("password")
         self.wait()
         # click enter
         password_input.send_keys(Keys.RETURN)

@@ -41,3 +41,5 @@ if __name__ == '__main__':
     subprocess.call(['python3', './src/scraper.py', '-t', 'post', '-c', str(args.total_post_count), '--timeline', args.timeline])
     
     subprocess.call(['python3', './src/userUtils.py'])
+    
+    subprocess.call(['python3', './src/scraper.py', '-t', 'user'])

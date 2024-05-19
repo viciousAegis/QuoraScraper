@@ -28,10 +28,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    chromedriver_autoinstaller.install()
+    try:
+        chromedriver_autoinstaller.install()
+    except Exception as e:
+        print(e)
+        pass
         
 
-    
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("start-maximized")
     chrome_options.add_argument('--disable-popup-blocking')
